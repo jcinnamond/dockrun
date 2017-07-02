@@ -1,0 +1,9 @@
+version: '2'
+services:
+  dev:
+    build: .
+    volumes:
+      - .:/app
+    command: ./dockrun server
+    ports:
+      - "9178:9178"
