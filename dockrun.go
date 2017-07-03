@@ -8,9 +8,13 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
 )
+
+const progname = "dockrun"
+const version = "0.1.1"
 
 func run(cmd string) string {
 	words := strings.Split(cmd, " ")
@@ -67,13 +71,34 @@ func runClient() {
 
 	var buf bytes.Buffer
 	io.Copy(&buf, conn)
-	fmt.Printf("Read %d bytes\n", buf.Len())
-	fmt.Println(buf.String())
+	fmt.Print(buf.String())
+}
+
+func printHelpAndExit() {
+	fmt.Println("Usage:")
+	fmt.Printf("  %s server\n", progname)
+	fmt.Printf("  %s client <command>\n", progname)
+	fmt.Println("")
+	flag.PrintDefaults()
+	os.Exit(0)
 }
 
 func main() {
+	var showHelp, showVersion bool
+
+	flag.BoolVar(&showHelp, "help", false, "show help and exit")
+	flag.BoolVar(&showVersion, "version", false, "show version and exit")
 
 	flag.Parse()
+
+	if showHelp {
+		printHelpAndExit()
+	}
+
+	if showVersion {
+		fmt.Printf("%s %s\n", progname, version)
+		os.Exit(0)
+	}
 
 	switch flag.Arg(0) {
 	case "server":
@@ -81,6 +106,6 @@ func main() {
 	case "client":
 		runClient()
 	default:
-		log.Fatal("no")
+		printHelpAndExit()
 	}
 }
